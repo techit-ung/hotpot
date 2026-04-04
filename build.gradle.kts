@@ -4,11 +4,11 @@ plugins {
     application
 }
 
-group = "io.hotpot"
+group = "com.coloncmd.hotpot"
 version = "0.1.0-SNAPSHOT"
 
 application {
-    mainClass.set("io.hotpot.HotPotKt")
+    mainClass.set("com.coloncmd.hotpot.HotPotKt")
 }
 
 kotlin {
