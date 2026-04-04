@@ -1,0 +1,45 @@
+plugins {
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
+    application
+}
+
+group = "io.hotpot"
+version = "0.1.0-SNAPSHOT"
+
+application {
+    mainClass.set("io.hotpot.HotPotKt")
+}
+
+kotlin {
+    jvmToolchain(17)
+}
+
+dependencies {
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.cio)
+    implementation(libs.ktor.server.content.neg)
+    implementation(libs.ktor.server.call.logging)
+    implementation(libs.ktor.server.status.pages)
+    implementation(libs.ktor.serialization.json)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.content.neg)
+
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.kotlin.datetime)
+    implementation(libs.h2)
+
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.logback.classic)
+
+    testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.kotest.assertions.core)
+    testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.ktor.client.mock)
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
