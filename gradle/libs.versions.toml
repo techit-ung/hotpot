@@ -1,14 +1,14 @@
 [versions]
-kotlin             = "2.1.0"
-ktor               = "3.0.3"
-exposed            = "0.57.0"
-h2                 = "2.3.232"
-kotlinx-serialization = "1.7.3"
-kotlinx-coroutines = "1.9.0"
-kotlinx-datetime = "0.6.1"
-kotest             = "5.9.1"
-logback            = "1.5.12"
-kover              = "0.9.1"
+kotlin             = "2.3.20"
+ktor               = "3.4.2"
+exposed            = "1.2.0"
+h2                 = "2.4.240"
+kotlinx-serialization = "1.10.0"
+kotlinx-coroutines = "1.10.2"
+kotlinx-datetime = "0.7.1"
+kotest             = "6.1.11"
+logback            = "1.5.32"
+kover              = "0.9.8"
 
 [libraries]
 ktor-server-core            = { module = "io.ktor:ktor-server-core",                    version.ref = "ktor" }
