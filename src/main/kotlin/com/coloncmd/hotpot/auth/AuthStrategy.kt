@@ -7,6 +7,6 @@ sealed interface AuthResult {
     data class Failure(val reason: String) : AuthResult
 }
 
-sealed interface AuthStrategy {
+interface AuthStrategy {
     suspend fun validate(call: ApplicationCall): AuthResult
 }

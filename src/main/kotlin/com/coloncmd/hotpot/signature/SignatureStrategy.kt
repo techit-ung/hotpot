@@ -7,6 +7,6 @@ sealed interface SignatureResult {
     data class Invalid(val reason: String) : SignatureResult
 }
 
-sealed interface SignatureStrategy {
+interface SignatureStrategy {
     suspend fun validate(call: ApplicationCall, rawBody: ByteArray): SignatureResult
 }
