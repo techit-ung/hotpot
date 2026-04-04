@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kover)
     application
 }
 
@@ -43,4 +44,13 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+kover {
+    reports {
+        total {
+            xml { onCheck = false }
+            html { onCheck = false }
+        }
+    }
 }

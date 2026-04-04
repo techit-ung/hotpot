@@ -1,5 +1,8 @@
 # HotPot
 
+[![Tests](https://github.com/techit-ung/hotpot/actions/workflows/test.yml/badge.svg)](https://github.com/techit-ung/hotpot/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/techit-ung/hotpot/branch/main/graph/badge.svg)](https://codecov.io/gh/techit-ung/hotpot)
+
 A codified mock backend and webhook sink for testing. Define HTTP endpoints in Kotlin using a clean DSL, record every request and response, and trigger outgoing notifications on demand to simulate async flows.
 
 ## Use cases
