@@ -206,6 +206,10 @@ listen(path = "/events", saveRequestResponse = false) {
 
 The per-route value overrides the `listen`-level value.
 
+## Example
+
+See [`example/`](example/) for a standalone project that uses HotPot as a library — a mock payment webhook server with token auth, HMAC signature validation, and event forwarding.
+
 ## Running
 
 ```bash
