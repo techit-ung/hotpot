@@ -22,6 +22,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.utils.io.*
+import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
 
 class HotPotServer(private val scope: StartScope, private val port: Int = 8080) {
@@ -64,7 +65,7 @@ class HotPotServer(private val scope: StartScope, private val port: Int = 8080) 
                     method = call.request.httpMethod.value,
                     headers = call.request.headers.entries().associate { it.key to it.value },
                     body = rawBody.decodeToString(),
-                    receivedAt = System.currentTimeMillis(),
+                    receivedAt = Clock.System.now(),
                 )
                 val requestId = if (effectiveSave) storage.saveRequest(request) else null
                 val response = routeDef.handler.invoke(HandlerContext(call, storage), request)
@@ -73,7 +74,7 @@ class HotPotServer(private val scope: StartScope, private val port: Int = 8080) 
                         requestId = requestId,
                         status = response.status,
                         body = response.body.toString(),
-                        sentAt = System.currentTimeMillis(),
+                        sentAt = Clock.System.now(),
                     ))
                 }
                 call.respond(HttpStatusCode.fromValue(response.status), response.body)
@@ -94,7 +95,7 @@ class HotPotServer(private val scope: StartScope, private val port: Int = 8080) 
                     method = "POST",
                     headers = call.request.headers.entries().associate { it.key to it.value },
                     body = rawBody.decodeToString(),
-                    receivedAt = System.currentTimeMillis(),
+                    receivedAt = Clock.System.now(),
                 )
                 notificationService.dispatch(notify, request)
                 call.respond(HttpStatusCode.Accepted)

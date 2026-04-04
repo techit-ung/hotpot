@@ -3,6 +3,7 @@ package com.coloncmd.hotpot.storage
 import com.coloncmd.hotpot.model.WebhookRequest
 import com.coloncmd.hotpot.model.WebhookResponse
 import io.kotest.core.spec.style.FunSpec
+import kotlinx.datetime.Clock
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -17,7 +18,7 @@ abstract class StorageContractTest : FunSpec() {
         method = method,
         headers = emptyMap(),
         body = """{"hello":"world"}""",
-        receivedAt = System.currentTimeMillis(),
+        receivedAt = Clock.System.now(),
     )
 
     init {
@@ -73,7 +74,7 @@ abstract class StorageContractTest : FunSpec() {
         test("saveResponse links to request; findResponseFor retrieves it") {
             val storage = storage()
             val requestId = storage.saveRequest(request())
-            val response = WebhookResponse(requestId = requestId, status = 200, body = "{}", sentAt = System.currentTimeMillis())
+            val response = WebhookResponse(requestId = requestId, status = 200, body = "{}", sentAt = Clock.System.now())
             storage.saveResponse(requestId, response)
             val found = storage.findResponseFor(requestId)
             found.shouldNotBeNull()
@@ -90,7 +91,7 @@ abstract class StorageContractTest : FunSpec() {
         test("clear removes all requests and responses") {
             val storage = storage()
             val id = storage.saveRequest(request())
-            storage.saveResponse(id, WebhookResponse(id, 200, "{}", System.currentTimeMillis()))
+            storage.saveResponse(id, WebhookResponse(id, 200, "{}", Clock.System.now()))
             storage.clear()
             storage.findRequests() shouldHaveSize 0
             storage.findResponseFor(id).shouldBeNull()

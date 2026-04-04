@@ -2,6 +2,7 @@ package com.coloncmd.hotpot.notification
 
 import com.coloncmd.hotpot.model.WebhookRequest
 import io.kotest.core.spec.style.FunSpec
+import kotlinx.datetime.Clock
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.client.engine.mock.*
@@ -17,7 +18,7 @@ class NotificationServiceTest : FunSpec({
         method = "POST",
         headers = emptyMap(),
         body = body,
-        receivedAt = System.currentTimeMillis(),
+        receivedAt = Clock.System.now(),
     )
 
     test("Proxy form forwards incoming body to target URL") {
