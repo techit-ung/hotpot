@@ -32,9 +32,9 @@ class TokenAuthenticationTest :
                 // act
                 val response =
                     client
-                    .get("/test") {
-                        header(HttpHeaders.Authorization, "Bearer secret")
-                    }
+                        .get("/test") {
+                            header(HttpHeaders.Authorization, "Bearer secret")
+                        }
 
                 // assert
                 response.status shouldBe HttpStatusCode.OK
@@ -49,9 +49,9 @@ class TokenAuthenticationTest :
                 // act
                 val response =
                     client
-                    .get("/test") {
-                        header(HttpHeaders.Authorization, "Bearer wrong")
-                    }
+                        .get("/test") {
+                            header(HttpHeaders.Authorization, "Bearer wrong")
+                        }
 
                 // assert
                 response.status shouldBe HttpStatusCode.Unauthorized

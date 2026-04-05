@@ -44,10 +44,10 @@ class NotifyCustomTest :
                 application { HotPotServer.configureApplication(this, scope) }
                 val response =
                     client
-                    .post("/paymob/complex-scenario") {
-                        contentType(ContentType.Application.Json)
-                        setBody("""{"event":"done"}""")
-                    }
+                        .post("/paymob/complex-scenario") {
+                            contentType(ContentType.Application.Json)
+                            setBody("""{"event":"done"}""")
+                        }
 
                 // assert
                 response.status shouldBe HttpStatusCode.Accepted

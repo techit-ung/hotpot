@@ -47,10 +47,10 @@ class HMACSignatureValidationTest :
                 withSignatureRoute()
                 val response =
                     client
-                    .post("/test") {
-                        setBody(body)
-                        header("X-Hub-Signature-256", computeHmac(body.toByteArray()))
-                    }
+                        .post("/test") {
+                            setBody(body)
+                            header("X-Hub-Signature-256", computeHmac(body.toByteArray()))
+                        }
 
                 // assert
                 response.status shouldBe HttpStatusCode.OK
@@ -66,10 +66,10 @@ class HMACSignatureValidationTest :
                 withSignatureRoute()
                 val response =
                     client
-                    .post("/test") {
-                        setBody("""{"event":"tampered"}""")
-                        header("X-Hub-Signature-256", computeHmac(body.toByteArray()))
-                    }
+                        .post("/test") {
+                            setBody("""{"event":"tampered"}""")
+                            header("X-Hub-Signature-256", computeHmac(body.toByteArray()))
+                        }
 
                 // assert
                 response.status shouldBe HttpStatusCode.BadRequest
@@ -88,10 +88,10 @@ class HMACSignatureValidationTest :
                 val wrongSig = "sha256=" + mac.doFinal(body.toByteArray()).joinToString("") { "%02x".format(it) }
                 val response =
                     client
-                    .post("/test") {
-                        setBody(body)
-                        header("X-Hub-Signature-256", wrongSig)
-                    }
+                        .post("/test") {
+                            setBody(body)
+                            header("X-Hub-Signature-256", wrongSig)
+                        }
 
                 // assert
                 response.status shouldBe HttpStatusCode.BadRequest
@@ -106,9 +106,9 @@ class HMACSignatureValidationTest :
                 // act
                 val response =
                     client
-                    .post("/test") {
-                        setBody("""{"event":"test"}""")
-                    }
+                        .post("/test") {
+                            setBody("""{"event":"test"}""")
+                        }
 
                 // assert
                 response.status shouldBe HttpStatusCode.BadRequest

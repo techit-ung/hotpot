@@ -47,10 +47,10 @@ class WebhookEndpointTest :
                 application { HotPotServer.configureApplication(this, scope) }
                 val response =
                     client
-                    .post("/paymob/callback") {
-                        contentType(ContentType.Application.Json)
-                        setBody("{}")
-                    }
+                        .post("/paymob/callback") {
+                            contentType(ContentType.Application.Json)
+                            setBody("{}")
+                        }
 
                 // assert
                 response.status shouldBe HttpStatusCode.OK
@@ -142,10 +142,10 @@ class WebhookEndpointTest :
                 application { HotPotServer.configureApplication(this, scope) }
                 val response =
                     client
-                    .post("/p/secure") {
-                        header(HttpHeaders.Authorization, "Bearer wrong")
-                        setBody("{}")
-                    }
+                        .post("/p/secure") {
+                            header(HttpHeaders.Authorization, "Bearer wrong")
+                            setBody("{}")
+                        }
 
                 // assert
                 response.status shouldBe HttpStatusCode.Unauthorized
@@ -168,10 +168,10 @@ class WebhookEndpointTest :
                 application { HotPotServer.configureApplication(this, scope) }
                 val response =
                     client
-                    .post("/p/secure") {
-                        header(HttpHeaders.Authorization, "Bearer secret")
-                        setBody("{}")
-                    }
+                        .post("/p/secure") {
+                            header(HttpHeaders.Authorization, "Bearer secret")
+                            setBody("{}")
+                        }
 
                 // assert
                 response.status shouldBe HttpStatusCode.OK
@@ -194,10 +194,10 @@ class WebhookEndpointTest :
                 application { HotPotServer.configureApplication(this, scope) }
                 val response =
                     client
-                    .post("/p/signed") {
-                        setBody("{}")
-                        header("X-Hub-Signature-256", "sha256=invalidsig")
-                    }
+                        .post("/p/signed") {
+                            setBody("{}")
+                            header("X-Hub-Signature-256", "sha256=invalidsig")
+                        }
 
                 // assert
                 response.status shouldBe HttpStatusCode.BadRequest
@@ -226,10 +226,10 @@ class WebhookEndpointTest :
                 application { HotPotServer.configureApplication(this, scope) }
                 val response =
                     client
-                    .post("/p/signed") {
-                        setBody(body)
-                        header("X-Hub-Signature-256", sig)
-                    }
+                        .post("/p/signed") {
+                            setBody(body)
+                            header("X-Hub-Signature-256", sig)
+                        }
 
                 // assert
                 response.status shouldBe HttpStatusCode.OK
