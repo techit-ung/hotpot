@@ -2,13 +2,13 @@ package com.coloncmd.hotpot.notification
 
 import com.coloncmd.hotpot.model.WebhookRequest
 import io.kotest.core.spec.style.FunSpec
-import kotlinx.datetime.Clock
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.utils.io.*
+import kotlin.time.Clock
 
 class NotificationServiceTest : FunSpec({
 

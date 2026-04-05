@@ -3,11 +3,11 @@ package com.coloncmd.hotpot.storage
 import com.coloncmd.hotpot.model.WebhookRequest
 import com.coloncmd.hotpot.model.WebhookResponse
 import io.kotest.core.spec.style.FunSpec
-import kotlinx.datetime.Clock
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import kotlin.time.Clock
 
 abstract class StorageContractTest : FunSpec() {
     abstract fun storage(): Storage

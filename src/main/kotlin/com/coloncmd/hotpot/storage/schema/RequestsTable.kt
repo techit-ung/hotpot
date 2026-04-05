@@ -1,7 +1,8 @@
 package com.coloncmd.hotpot.storage.schema
 
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.datetime.timestamp
+
 
 object RequestsTable : Table("hotpot_requests") {
     val id         = varchar("id", 36)

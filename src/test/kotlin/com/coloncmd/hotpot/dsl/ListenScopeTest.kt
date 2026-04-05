@@ -43,7 +43,7 @@ class ListenScopeTest : FunSpec({
         val notify = scope.notifyRoutes.first()
         notify.shouldBeInstanceOf<NotifyDefinition.Proxy>()
         notify.path shouldBe "/capture-succeeded"
-        (notify as NotifyDefinition.Proxy).target shouldBe "http://service/cb"
+        notify.target shouldBe "http://service/cb"
     }
 
     test("notify with handler registers a NotifyDefinition.Custom") {

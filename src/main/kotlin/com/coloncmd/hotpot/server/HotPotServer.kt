@@ -12,18 +12,26 @@ import com.coloncmd.hotpot.plugin.validateAuth
 import com.coloncmd.hotpot.plugin.validateSignature
 import com.coloncmd.hotpot.routing.QueryRouter
 import com.coloncmd.hotpot.storage.Storage
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.application.*
-import io.ktor.server.cio.*
-import io.ktor.server.engine.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.utils.io.*
-import kotlinx.datetime.Clock
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import io.ktor.server.cio.CIO
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.request.httpMethod
+import io.ktor.server.request.path
+import io.ktor.server.request.receiveChannel
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.routing.route
+import io.ktor.server.routing.routing
+import io.ktor.utils.io.toByteArray
 import kotlinx.serialization.json.Json
+import kotlin.time.Clock
 
 class HotPotServer(private val scope: StartScope, private val port: Int = 8080) {
 

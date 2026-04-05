@@ -1,7 +1,7 @@
 package com.coloncmd.hotpot.model
 
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class WebhookRequest(

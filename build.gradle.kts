@@ -13,7 +13,7 @@ application {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
 }
 
 dependencies {
@@ -33,7 +33,6 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.datetime)
     implementation(libs.logback.classic)
 
     testImplementation(libs.kotest.runner.junit5)
