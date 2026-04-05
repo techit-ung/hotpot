@@ -8,6 +8,7 @@ kotlinx-coroutines = "1.10.2"
 kotest = "5.9.1"
 logback = "1.5.18"
 kover = "0.9.8"
+ktlint-gradle = "14.2.0"
 
 [libraries]
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
@@ -41,3 +42,4 @@ kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }

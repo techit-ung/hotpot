@@ -36,13 +36,14 @@ internal object HotPotOpenApi {
                 contentType = ContentType.Application.Json,
                 securitySchemes = {
                     mapOf(
-                        BEARER_AUTH_SCHEME to ReferenceOr.Value(
-                            HttpSecurityScheme(
-                                scheme = "bearer",
-                                bearerFormat = "JWT",
-                                description = "Bearer token used by TokenAuthentication.",
+                        BEARER_AUTH_SCHEME to
+                            ReferenceOr.Value(
+                                HttpSecurityScheme(
+                                    scheme = "bearer",
+                                    bearerFormat = "JWT",
+                                    description = "Bearer token used by TokenAuthentication.",
+                                ),
                             ),
-                        ),
                     )
                 },
                 routes = { documentedRoots.asSequence().flatMap { it.allDescendants() } },

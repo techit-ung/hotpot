@@ -11,3 +11,11 @@ repos:
     hooks:
     -   id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
+-   repo: local
+    hooks:
+    -   id: ktlint
+        name: ktlint
+        language: system
+        entry: ./gradlew ktlintCheck
+        files: \.kt$
+        pass_filenames: false
