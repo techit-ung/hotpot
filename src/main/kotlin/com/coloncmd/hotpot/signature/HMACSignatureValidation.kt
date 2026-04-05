@@ -1,6 +1,6 @@
 package com.coloncmd.hotpot.signature
 
-import io.ktor.server.application.*
+import io.ktor.server.application.ApplicationCall
 import java.security.MessageDigest
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
@@ -11,15 +11,20 @@ data class HMACSignatureValidation(
     val algorithm: String = "HmacSHA256",
     val prefix: String = "sha256=",
 ) : SignatureStrategy {
-
-    override suspend fun validate(call: ApplicationCall, rawBody: ByteArray): SignatureResult {
-        val received = call.request.headers[headerName]
-            ?: return SignatureResult.Invalid("Missing $headerName header")
+    override suspend fun validate(
+        call: ApplicationCall,
+        rawBody: ByteArray,
+    ): SignatureResult {
+        val received =
+            call.request.headers[headerName]
+                ?: return SignatureResult.Invalid("Missing $headerName header")
         val expected = computeHmac(rawBody)
-        return if (MessageDigest.isEqual(expected.toByteArray(), received.toByteArray()))
+        return if (MessageDigest.isEqual(expected.toByteArray(), received.toByteArray())) {
             SignatureResult.Valid
-        else
+        } else {
+            println("expected: $expected, received $received")
             SignatureResult.Invalid("HMAC signature mismatch")
+        }
     }
 
     private fun computeHmac(body: ByteArray): String {

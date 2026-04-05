@@ -12,7 +12,10 @@ import kotlin.time.Clock
 abstract class StorageContractTest : FunSpec() {
     abstract fun storage(): Storage
 
-    private fun request(path: String = "/test", method: String = "POST") = WebhookRequest(
+    private fun request(
+        path: String = "/test",
+        method: String = "POST",
+    ) = WebhookRequest(
         id = "",
         path = path,
         method = method,

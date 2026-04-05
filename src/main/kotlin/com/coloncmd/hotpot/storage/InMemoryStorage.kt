@@ -15,11 +15,18 @@ class InMemoryStorage : Storage {
         return id
     }
 
-    override suspend fun saveResponse(requestId: String, response: WebhookResponse) {
+    override suspend fun saveResponse(
+        requestId: String,
+        response: WebhookResponse,
+    ) {
         responses[requestId] = response.copy(requestId = requestId)
     }
 
-    override suspend fun findRequests(path: String?, method: String?, limit: Int): List<WebhookRequest> =
+    override suspend fun findRequests(
+        path: String?,
+        method: String?,
+        limit: Int,
+    ): List<WebhookRequest> =
         requests.values
             .filter { path == null || it.path == path }
             .filter { method == null || it.method == method }

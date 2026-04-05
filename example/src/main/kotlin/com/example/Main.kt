@@ -33,7 +33,7 @@ fun main() {
                     buildJsonObject {
                         put("message", "Payment event received")
                         put("id", request.id)
-                    }
+                    },
                 )
             }
 
@@ -46,7 +46,7 @@ fun main() {
                     buildJsonObject {
                         put("message", "Refund event received")
                         put("id", request.id)
-                    }
+                    },
                 )
             }
 

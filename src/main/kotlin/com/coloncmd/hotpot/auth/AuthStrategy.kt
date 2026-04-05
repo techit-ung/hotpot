@@ -1,10 +1,13 @@
 package com.coloncmd.hotpot.auth
 
-import io.ktor.server.application.*
+import io.ktor.server.application.ApplicationCall
 
 sealed interface AuthResult {
     data object Success : AuthResult
-    data class Failure(val reason: String) : AuthResult
+
+    data class Failure(
+        val reason: String,
+    ) : AuthResult
 }
 
 interface AuthStrategy {

@@ -11,9 +11,13 @@ data class HotPotResponse(
 ) {
     companion object {
         fun ok(body: JsonElement = JsonNull) = HotPotResponse(200, body)
+
         fun accepted(body: JsonElement = JsonNull) = HotPotResponse(202, body)
+
         fun badRequest(body: JsonElement = JsonNull) = HotPotResponse(400, body)
+
         fun unauthorized() = HotPotResponse(401)
+
         fun notFound() = HotPotResponse(404)
     }
 }

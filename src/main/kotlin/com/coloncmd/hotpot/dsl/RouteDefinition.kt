@@ -9,7 +9,7 @@ sealed class RouteDefinition {
     abstract val path: String
     abstract val auth: Set<AuthStrategy>
     abstract val signature: Set<SignatureStrategy>
-    abstract val saveRequestResponse: Boolean?  // null = inherit from RouteGroup
+    abstract val saveRequestResponse: Boolean? // null = inherit from RouteGroup
     abstract val handler: suspend HandlerContext.(WebhookRequest) -> HotPotResponse
 
     data class Post(

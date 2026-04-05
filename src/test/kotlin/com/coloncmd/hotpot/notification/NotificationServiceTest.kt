@@ -4,99 +4,110 @@ import com.coloncmd.hotpot.model.WebhookRequest
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.ktor.client.engine.mock.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.utils.io.*
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.toByteArray
+import io.ktor.client.request.post
+import io.ktor.http.HttpStatusCode
+import io.ktor.utils.io.ByteReadChannel
 import kotlin.time.Clock
 
-class NotificationServiceTest : FunSpec({
+class NotificationServiceTest :
+    FunSpec({
 
-    fun request(body: String = """{"event":"test"}""") = WebhookRequest(
-        id = "req-1",
-        path = "/paymob/callback",
-        method = "POST",
-        headers = emptyMap(),
-        body = body,
-        receivedAt = Clock.System.now(),
-    )
+        fun request(body: String = """{"event":"test"}""") =
+            WebhookRequest(
+                id = "req-1",
+                path = "/paymob/callback",
+                method = "POST",
+                headers = emptyMap(),
+                body = body,
+                receivedAt = Clock.System.now(),
+            )
 
-    test("Proxy form forwards incoming body to target URL") {
-        var capturedUrl = ""
-        var capturedBody = ""
+        test("Proxy form forwards incoming body to target URL") {
+            var capturedUrl = ""
+            var capturedBody = ""
 
-        val engine = MockEngine { req ->
-            capturedUrl = req.url.toString()
-            capturedBody = req.body.toByteArray().decodeToString()
-            respond(content = ByteReadChannel(""), status = HttpStatusCode.OK)
+            val engine =
+                MockEngine { req ->
+                    capturedUrl = req.url.toString()
+                    capturedBody = req.body.toByteArray().decodeToString()
+                    respond(content = ByteReadChannel(""), status = HttpStatusCode.OK)
+                }
+
+            val service = NotificationService(engine)
+            val definition =
+                NotifyDefinition.Proxy(
+                    path = "/trigger",
+                    target = "http://service/webhooks",
+                )
+
+            service.dispatch(definition, request("""{"event":"capture_succeeded"}"""))
+
+            capturedUrl shouldBe "http://service/webhooks"
+            capturedBody shouldContain "capture_succeeded"
         }
 
-        val service = NotificationService(engine)
-        val definition = NotifyDefinition.Proxy(
-            path = "/trigger",
-            target = "http://service/webhooks",
-        )
+        test("Proxy form forwards custom headers to target") {
+            var capturedHeader = ""
 
-        service.dispatch(definition, request("""{"event":"capture_succeeded"}"""))
+            val engine =
+                MockEngine { req ->
+                    capturedHeader = req.headers["X-Provider"] ?: ""
+                    respond(content = ByteReadChannel(""), status = HttpStatusCode.OK)
+                }
 
-        capturedUrl shouldBe "http://service/webhooks"
-        capturedBody shouldContain "capture_succeeded"
-    }
+            val service = NotificationService(engine)
+            val definition =
+                NotifyDefinition.Proxy(
+                    path = "/trigger",
+                    target = "http://service/webhooks",
+                    headers = mapOf("X-Provider" to "paymob"),
+                )
 
-    test("Proxy form forwards custom headers to target") {
-        var capturedHeader = ""
-
-        val engine = MockEngine { req ->
-            capturedHeader = req.headers["X-Provider"] ?: ""
-            respond(content = ByteReadChannel(""), status = HttpStatusCode.OK)
+            service.dispatch(definition, request())
+            capturedHeader shouldBe "paymob"
         }
 
-        val service = NotificationService(engine)
-        val definition = NotifyDefinition.Proxy(
-            path = "/trigger",
-            target = "http://service/webhooks",
-            headers = mapOf("X-Provider" to "paymob"),
-        )
+        test("Custom form invokes handler with NotifyContext and request") {
+            var handlerCalled = false
+            var receivedPath = ""
 
-        service.dispatch(definition, request())
-        capturedHeader shouldBe "paymob"
-    }
+            val engine = MockEngine { respond(content = ByteReadChannel(""), status = HttpStatusCode.OK) }
+            val service = NotificationService(engine)
 
-    test("Custom form invokes handler with NotifyContext and request") {
-        var handlerCalled = false
-        var receivedPath = ""
+            val definition =
+                NotifyDefinition.Custom(path = "/complex") { req ->
+                    handlerCalled = true
+                    receivedPath = req.path
+                }
 
-        val engine = MockEngine { respond(content = ByteReadChannel(""), status = HttpStatusCode.OK) }
-        val service = NotificationService(engine)
+            service.dispatch(definition, request())
 
-        val definition = NotifyDefinition.Custom(path = "/complex") { req ->
-            handlerCalled = true
-            receivedPath = req.path
+            handlerCalled shouldBe true
+            receivedPath shouldBe "/paymob/callback"
         }
 
-        service.dispatch(definition, request())
+        test("Custom form can make multiple outgoing calls") {
+            val calledUrls = mutableListOf<String>()
 
-        handlerCalled shouldBe true
-        receivedPath shouldBe "/paymob/callback"
-    }
+            val engine =
+                MockEngine { req ->
+                    calledUrls += req.url.toString()
+                    respond(content = ByteReadChannel(""), status = HttpStatusCode.OK)
+                }
 
-    test("Custom form can make multiple outgoing calls") {
-        val calledUrls = mutableListOf<String>()
+            val service = NotificationService(engine)
 
-        val engine = MockEngine { req ->
-            calledUrls += req.url.toString()
-            respond(content = ByteReadChannel(""), status = HttpStatusCode.OK)
+            val definition =
+                NotifyDefinition.Custom(path = "/multi") { req ->
+                    client.post("http://service-a/cb") { }
+                    client.post("http://service-b/cb") { }
+                }
+
+            service.dispatch(definition, request())
+
+            calledUrls shouldBe listOf("http://service-a/cb", "http://service-b/cb")
         }
-
-        val service = NotificationService(engine)
-
-        val definition = NotifyDefinition.Custom(path = "/multi") { req ->
-            client.post("http://service-a/cb") { }
-            client.post("http://service-b/cb") { }
-        }
-
-        service.dispatch(definition, request())
-
-        calledUrls shouldBe listOf("http://service-a/cb", "http://service-b/cb")
-    }
-})
+    })

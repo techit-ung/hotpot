@@ -22,6 +22,8 @@ dependencies {
     implementation(libs.ktor.server.content.neg)
     implementation(libs.ktor.server.call.logging)
     implementation(libs.ktor.server.status.pages)
+    implementation(libs.ktor.server.swagger)
+    implementation(libs.ktor.server.routing.openapi)
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.neg)
