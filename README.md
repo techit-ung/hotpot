@@ -1,6 +1,7 @@
 # HotPot
 
 [![Tests](https://github.com/techit-ung/hotpot/actions/workflows/test.yml/badge.svg)](https://github.com/techit-ung/hotpot/actions/workflows/test.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A codified mock backend and webhook sink for testing. Define HTTP endpoints in Kotlin using a clean DSL, record every request and response, and trigger outgoing notifications on demand to simulate async flows.
 
@@ -146,6 +147,23 @@ Validates a `Bearer` token in the `Authorization` header.
 TokenAuthentication("my-static-token")
 ```
 
+### Custom `AuthStrategy`
+
+Implement `AuthStrategy` to plug in any authentication scheme:
+
+```kotlin
+class ApiKeyAuth(private val key: String) : AuthStrategy {
+    override suspend fun validate(call: ApplicationCall): AuthResult {
+        return if (call.request.headers["X-Api-Key"] == key) AuthResult.Success
+        else AuthResult.Failure("invalid api key")
+    }
+}
+
+post(path = "/create", auth = setOf(ApiKeyAuth("secret"))) { request ->
+    HotPotResponse.ok()
+}
+```
+
 ## Signature validation
 
 ### `HMACSignatureValidation`
@@ -159,6 +177,20 @@ HMACSignatureValidation(
     algorithm = "HmacSHA256",            // default
     prefix = "sha256=",                  // default
 )
+```
+
+### Custom `SignatureStrategy`
+
+Implement `SignatureStrategy` for non-standard signature schemes:
+
+```kotlin
+class MySignatureStrategy(private val secret: String) : SignatureStrategy {
+    override suspend fun validate(call: ApplicationCall, rawBody: ByteArray): SignatureResult {
+        val header = call.request.headers["X-My-Signature"] ?: return SignatureResult.Invalid("missing header")
+        return if (verify(rawBody, secret, header)) SignatureResult.Valid
+        else SignatureResult.Invalid("signature mismatch")
+    }
+}
 ```
 
 ## Query API
@@ -247,6 +279,6 @@ See [`example/`](example/) for a standalone project that uses HotPot as a librar
 
 - **Kotlin 2.3** — sealed classes, data classes, coroutines, extension functions, DSL builders
 - **Ktor 3.4** — CIO server, content negotiation, routing, runtime OpenAPI generation, Swagger UI
-- **Exposed 0.57 + H2** — in-memory SQL storage
+- **Exposed 1.2 + H2** — in-memory SQL storage
 - **Kotest 5** — test framework
 - **Gradle KTS + Version Catalog** — `gradle/libs.versions.toml`
