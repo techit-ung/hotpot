@@ -21,13 +21,14 @@ class ListenScope internal constructor(
         saveRequestResponse: Boolean? = null,
         handler: suspend HandlerContext.(WebhookRequest) -> HotPotResponse,
     ) {
-        routes += RouteDefinition.Post(
-            path = path,
-            auth = auth,
-            signature = signature,
-            saveRequestResponse = saveRequestResponse,
-            handler = handler,
-        )
+        routes +=
+            RouteDefinition.Post(
+                path = path,
+                auth = auth,
+                signature = signature,
+                saveRequestResponse = saveRequestResponse,
+                handler = handler,
+            )
     }
 
     fun get(
@@ -37,13 +38,14 @@ class ListenScope internal constructor(
         saveRequestResponse: Boolean? = null,
         handler: suspend HandlerContext.(WebhookRequest) -> HotPotResponse = { HotPotResponse.ok() },
     ) {
-        routes += RouteDefinition.Get(
-            path = path,
-            auth = auth,
-            signature = signature,
-            saveRequestResponse = saveRequestResponse,
-            handler = handler,
-        )
+        routes +=
+            RouteDefinition.Get(
+                path = path,
+                auth = auth,
+                signature = signature,
+                saveRequestResponse = saveRequestResponse,
+                handler = handler,
+            )
     }
 
     fun notify(

@@ -24,18 +24,23 @@ import kotlin.reflect.typeOf
 internal object HotPotOpenApi {
     const val SPEC_PATH = "/hotpot/openapi.json"
 
-    fun install(app: Application, documentedRoots: List<Route>) {
-        val source = OpenApiDocSource.Routing(
-            contentType = ContentType.Application.Json,
-            routes = { documentedRoots.asSequence().flatMap { it.allDescendants() } }
-        )
+    fun install(
+        app: Application,
+        documentedRoots: List<Route>,
+    ) {
+        val source =
+            OpenApiDocSource.Routing(
+                contentType = ContentType.Application.Json,
+                routes = { documentedRoots.asSequence().flatMap { it.allDescendants() } },
+            )
         app.routing {
             route("/hotpot") {
                 get("openapi.json") {
-                    val doc = source.read(
-                        call.application,
-                        OpenApiDoc(info = OpenApiInfo(title = "HotPot", version = app.hotPotVersion()))
-                    )
+                    val doc =
+                        source.read(
+                            call.application,
+                            OpenApiDoc(info = OpenApiInfo(title = "HotPot", version = app.hotPotVersion())),
+                        )
                     call.respondText(doc.content, doc.contentType)
                 }.hide()
                 swaggerUI("swagger", SPEC_PATH).hide()
@@ -43,8 +48,7 @@ internal object HotPotOpenApi {
         }
     }
 
-    fun Route.allDescendants(): Sequence<Route> =
-        sequenceOf(this) + children.asSequence().flatMap { it.allDescendants() }
+    fun Route.allDescendants(): Sequence<Route> = sequenceOf(this) + children.asSequence().flatMap { it.allDescendants() }
 
     @OptIn(ExperimentalStdlibApi::class)
     fun Operation.Builder.describeJsonRequest(required: Boolean = true) {
@@ -56,7 +60,10 @@ internal object HotPotOpenApi {
     }
 
     @OptIn(ExperimentalStdlibApi::class)
-    fun Operation.Builder.describeJsonResponse(status: HttpStatusCode, description: String) {
+    fun Operation.Builder.describeJsonResponse(
+        status: HttpStatusCode,
+        description: String,
+    ) {
         responses {
             status {
                 this.description = description
@@ -65,7 +72,10 @@ internal object HotPotOpenApi {
         }
     }
 
-    fun Operation.Builder.describeEmptyResponse(status: HttpStatusCode, description: String) {
+    fun Operation.Builder.describeEmptyResponse(
+        status: HttpStatusCode,
+        description: String,
+    ) {
         responses {
             status {
                 this.description = description
@@ -86,7 +96,8 @@ internal object HotPotOpenApi {
 
     @OptIn(ExperimentalStdlibApi::class)
     fun Operation.Builder.describeSignatureHeaders(signatures: Set<SignatureStrategy>) {
-        signatures.filterIsInstance<HMACSignatureValidation>()
+        signatures
+            .filterIsInstance<HMACSignatureValidation>()
             .map { it.headerName }
             .distinct()
             .forEach { headerName ->
@@ -102,6 +113,5 @@ internal object HotPotOpenApi {
 
     fun Set<AuthStrategy>.hasTokenAuth(): Boolean = any { it is TokenAuthentication }
 
-    private fun Application.hotPotVersion(): String =
-        this::class.java.`package`?.implementationVersion ?: "0.1.0-SNAPSHOT"
+    private fun Application.hotPotVersion(): String = this::class.java.`package`?.implementationVersion ?: "0.1.0-SNAPSHOT"
 }

@@ -41,8 +41,10 @@ import io.ktor.utils.io.toByteArray
 import kotlinx.serialization.json.Json
 import kotlin.time.Clock
 
-class HotPotServer(private val scope: StartScope, private val port: Int = 8080) {
-
+class HotPotServer(
+    private val scope: StartScope,
+    private val port: Int = 8080,
+) {
     fun start(wait: Boolean = true) {
         embeddedServer(CIO, port = port) {
             configureApplication(this, scope)
@@ -50,29 +52,43 @@ class HotPotServer(private val scope: StartScope, private val port: Int = 8080) 
     }
 
     companion object {
-        fun configureApplication(app: Application, scope: StartScope) = app.apply {
+        fun configureApplication(
+            app: Application,
+            scope: StartScope,
+        ) = app.apply {
             install(ContentNegotiation) {
-                json(Json { prettyPrint = true; isLenient = true; ignoreUnknownKeys = true })
+                json(
+                    Json {
+                        prettyPrint = true
+                        isLenient = true
+                        ignoreUnknownKeys = true
+                    },
+                )
             }
             val queryRoutes = QueryRouter.install(this, scope.storage)
             val webhookRoutes = installWebhookRoutes(scope)
             HotPotOpenApi.install(this, listOf(queryRoutes, webhookRoutes))
         }
 
-        private fun Application.installWebhookRoutes(scope: StartScope): Route = routing {
-            for (group in scope.routeGroups) {
-                route(group.basePath) {
-                    for (routeDef in group.routes) {
-                        mountRoute(routeDef, group, scope.storage)
-                    }
-                    for (notifyDef in group.notifyRoutes) {
-                        mountNotify(notifyDef, group, scope.notificationService)
+        private fun Application.installWebhookRoutes(scope: StartScope): Route =
+            routing {
+                for (group in scope.routeGroups) {
+                    route(group.basePath) {
+                        for (routeDef in group.routes) {
+                            mountRoute(routeDef, group, scope.storage)
+                        }
+                        for (notifyDef in group.notifyRoutes) {
+                            mountNotify(notifyDef, group, scope.notificationService)
+                        }
                     }
                 }
             }
-        }
 
-        private fun Route.mountRoute(routeDef: RouteDefinition, group: RouteGroup, storage: Storage) {
+        private fun Route.mountRoute(
+            routeDef: RouteDefinition,
+            group: RouteGroup,
+            storage: Storage,
+        ) {
             val effectiveSave = routeDef.saveRequestResponse ?: group.saveRequestResponse
 
             suspend fun io.ktor.server.routing.RoutingContext.handle() {
@@ -80,14 +96,18 @@ class HotPotServer(private val scope: StartScope, private val port: Int = 8080) 
                 if (!call.validateAuth(routeDef.auth)) return
                 if (!call.validateSignature(routeDef.signature, rawBody)) return
 
-                val request = WebhookRequest(
-                    id = "",
-                    path = call.request.path(),
-                    method = call.request.httpMethod.value,
-                    headers = call.request.headers.entries().associate { it.key to it.value },
-                    body = rawBody.decodeToString(),
-                    receivedAt = Clock.System.now(),
-                )
+                val request =
+                    WebhookRequest(
+                        id = "",
+                        path = call.request.path(),
+                        method = call.request.httpMethod.value,
+                        headers =
+                            call.request.headers
+                                .entries()
+                                .associate { it.key to it.value },
+                        body = rawBody.decodeToString(),
+                        receivedAt = Clock.System.now(),
+                    )
                 val requestId = if (effectiveSave) storage.saveRequest(request) else null
                 val response = routeDef.handler.invoke(HandlerContext(call, storage), request)
                 if (effectiveSave && requestId != null) {
@@ -98,18 +118,23 @@ class HotPotServer(private val scope: StartScope, private val port: Int = 8080) 
                             status = response.status,
                             body = response.body.toString(),
                             sentAt = Clock.System.now(),
-                        )
+                        ),
                     )
                 }
                 call.respond(HttpStatusCode.fromValue(response.status), response.body)
             }
 
             when (routeDef) {
-                is RouteDefinition.Post -> post(routeDef.path) { handle() }.describe {
-                    describeInboundRoute(routeDef, group)
+                is RouteDefinition.Post -> {
+                    post(routeDef.path) { handle() }.describe {
+                        describeInboundRoute(routeDef, group)
+                    }
                 }
-                is RouteDefinition.Get -> get(routeDef.path) { handle() }.describe {
-                    describeInboundRoute(routeDef, group)
+
+                is RouteDefinition.Get -> {
+                    get(routeDef.path) { handle() }.describe {
+                        describeInboundRoute(routeDef, group)
+                    }
                 }
             }
         }
@@ -121,14 +146,18 @@ class HotPotServer(private val scope: StartScope, private val port: Int = 8080) 
         ) {
             post(notify.path) {
                 val rawBody = call.receiveChannel().toByteArray()
-                val request = WebhookRequest(
-                    id = "",
-                    path = call.request.path(),
-                    method = "POST",
-                    headers = call.request.headers.entries().associate { it.key to it.value },
-                    body = rawBody.decodeToString(),
-                    receivedAt = Clock.System.now(),
-                )
+                val request =
+                    WebhookRequest(
+                        id = "",
+                        path = call.request.path(),
+                        method = "POST",
+                        headers =
+                            call.request.headers
+                                .entries()
+                                .associate { it.key to it.value },
+                        body = rawBody.decodeToString(),
+                        receivedAt = Clock.System.now(),
+                    )
                 notificationService.dispatch(notify, request)
                 call.respond(HttpStatusCode.Accepted)
             }.describe {
@@ -145,10 +174,11 @@ class HotPotServer(private val scope: StartScope, private val port: Int = 8080) 
             routeDef: RouteDefinition,
             group: RouteGroup,
         ) {
-            val method = when (routeDef) {
-                is RouteDefinition.Get -> "GET"
-                is RouteDefinition.Post -> "POST"
-            }
+            val method =
+                when (routeDef) {
+                    is RouteDefinition.Get -> "GET"
+                    is RouteDefinition.Post -> "POST"
+                }
 
             summary = "$method ${fullRoutePath(group.basePath, routeDef.path)}"
             description = "HotPot DSL route."
@@ -172,17 +202,29 @@ class HotPotServer(private val scope: StartScope, private val port: Int = 8080) 
             describeEmptyResponse(HttpStatusCode.Unauthorized, "Authentication failed.")
         }
 
-        private fun fullRoutePath(basePath: String, path: String): String {
+        private fun fullRoutePath(
+            basePath: String,
+            path: String,
+        ): String {
             val normalizedBase = if (basePath.isBlank()) "" else basePath.trimEnd('/')
-            val normalizedPath = if (path.isBlank()) "" else if (path.startsWith("/")) path else "/$path"
+            val normalizedPath =
+                if (path.isBlank()) {
+                    ""
+                } else if (path.startsWith("/")) {
+                    path
+                } else {
+                    "/$path"
+                }
             return (normalizedBase + normalizedPath).ifBlank { "/" }
         }
 
-        private fun operationId(prefix: String, path: String): String =
+        private fun operationId(
+            prefix: String,
+            path: String,
+        ): String =
             (prefix + "_" + path.trim('/').replace('/', '_').ifBlank { "root" })
                 .replace(Regex("[^A-Za-z0-9_]"), "_")
 
-        private fun tagName(basePath: String): String =
-            basePath.trim('/').ifBlank { "root" }
+        private fun tagName(basePath: String): String = basePath.trim('/').ifBlank { "root" }
     }
 }

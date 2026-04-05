@@ -16,11 +16,12 @@ class StartScope internal constructor(
     ) {
         val scope = ListenScope(basePath = path, saveRequestResponse = saveRequestResponse)
         scope.block()
-        routeGroups += RouteGroup(
-            basePath = path,
-            saveRequestResponse = saveRequestResponse,
-            routes = scope.routes.toList(),
-            notifyRoutes = scope.notifyRoutes.toList(),
-        )
+        routeGroups +=
+            RouteGroup(
+                basePath = path,
+                saveRequestResponse = saveRequestResponse,
+                routes = scope.routes.toList(),
+                notifyRoutes = scope.notifyRoutes.toList(),
+            )
     }
 }
