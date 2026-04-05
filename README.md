@@ -4,6 +4,8 @@
 
 A codified mock backend and webhook sink for testing. Define HTTP endpoints in Kotlin using a clean DSL, record every request and response, and trigger outgoing notifications on demand to simulate async flows.
 
+HotPot also exposes a runtime-generated OpenAPI spec and Swagger UI for the routes it mounts.
+
 ## Use cases
 
 - **Automated tests** — spin up HotPot in-process, hit its endpoints, assert on captured payloads via the query API.
@@ -170,6 +172,23 @@ Always mounted at `/hotpot/*`, regardless of your DSL configuration.
 | `GET` | `/hotpot/requests/{id}/response` | Response paired with a request |
 | `DELETE` | `/hotpot/requests` | Clear all saved data |
 
+## API docs
+
+Always mounted under `/hotpot/*`.
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/hotpot/openapi.json` | Runtime-generated OpenAPI spec for DSL routes and HotPot query APIs |
+| `GET` | `/hotpot/swagger` | Swagger UI backed by the runtime OpenAPI spec |
+
+The generated spec includes:
+
+- user-defined `listen {}` routes
+- `notify(...)` inbound trigger routes
+- the built-in query API under `/hotpot/requests`
+
+The docs endpoints themselves are intentionally excluded from the generated spec.
+
 ### Example: assert on a captured request
 
 ```kotlin
@@ -226,8 +245,8 @@ See [`example/`](example/) for a standalone project that uses HotPot as a librar
 
 ## Tech stack
 
-- **Kotlin 2.1** — sealed classes, data classes, coroutines, extension functions, DSL builders
-- **Ktor 3.x** — CIO server, content negotiation, routing
+- **Kotlin 2.3** — sealed classes, data classes, coroutines, extension functions, DSL builders
+- **Ktor 3.4** — CIO server, content negotiation, routing, runtime OpenAPI generation, Swagger UI
 - **Exposed 0.57 + H2** — in-memory SQL storage
 - **Kotest 5** — test framework
 - **Gradle KTS + Version Catalog** — `gradle/libs.versions.toml`
