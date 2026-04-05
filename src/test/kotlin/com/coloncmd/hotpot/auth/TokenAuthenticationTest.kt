@@ -25,29 +25,49 @@ class TokenAuthenticationTest :
             }
 
         test("valid Bearer token passes") {
+            // arrange
             testApplication {
                 withAuthRoute("secret")
-                client
+
+                // act
+                val response =
+                    client
                     .get("/test") {
                         header(HttpHeaders.Authorization, "Bearer secret")
-                    }.status shouldBe HttpStatusCode.OK
+                    }
+
+                // assert
+                response.status shouldBe HttpStatusCode.OK
             }
         }
 
         test("wrong token is rejected") {
+            // arrange
             testApplication {
                 withAuthRoute("secret")
-                client
+
+                // act
+                val response =
+                    client
                     .get("/test") {
                         header(HttpHeaders.Authorization, "Bearer wrong")
-                    }.status shouldBe HttpStatusCode.Unauthorized
+                    }
+
+                // assert
+                response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
 
         test("missing Authorization header is rejected") {
+            // arrange
             testApplication {
                 withAuthRoute("secret")
-                client.get("/test").status shouldBe HttpStatusCode.Unauthorized
+
+                // act
+                val response = client.get("/test")
+
+                // assert
+                response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
     })

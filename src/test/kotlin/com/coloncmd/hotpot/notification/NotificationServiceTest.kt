@@ -26,9 +26,9 @@ class NotificationServiceTest :
             )
 
         test("Proxy form forwards incoming body to target URL") {
+            // arrange
             var capturedUrl = ""
             var capturedBody = ""
-
             val engine =
                 MockEngine { req ->
                     capturedUrl = req.url.toString()
@@ -43,15 +43,17 @@ class NotificationServiceTest :
                     target = "http://service/webhooks",
                 )
 
+            // act
             service.dispatch(definition, request("""{"event":"capture_succeeded"}"""))
 
+            // assert
             capturedUrl shouldBe "http://service/webhooks"
             capturedBody shouldContain "capture_succeeded"
         }
 
         test("Proxy form forwards custom headers to target") {
+            // arrange
             var capturedHeader = ""
-
             val engine =
                 MockEngine { req ->
                     capturedHeader = req.headers["X-Provider"] ?: ""
@@ -66,11 +68,15 @@ class NotificationServiceTest :
                     headers = mapOf("X-Provider" to "paymob"),
                 )
 
+            // act
             service.dispatch(definition, request())
+
+            // assert
             capturedHeader shouldBe "paymob"
         }
 
         test("Custom form invokes handler with NotifyContext and request") {
+            // arrange
             var handlerCalled = false
             var receivedPath = ""
 
@@ -83,15 +89,17 @@ class NotificationServiceTest :
                     receivedPath = req.path
                 }
 
+            // act
             service.dispatch(definition, request())
 
+            // assert
             handlerCalled shouldBe true
             receivedPath shouldBe "/paymob/callback"
         }
 
         test("Custom form can make multiple outgoing calls") {
+            // arrange
             val calledUrls = mutableListOf<String>()
-
             val engine =
                 MockEngine { req ->
                     calledUrls += req.url.toString()
@@ -106,8 +114,10 @@ class NotificationServiceTest :
                     client.post("http://service-b/cb") { }
                 }
 
+            // act
             service.dispatch(definition, request())
 
+            // assert
             calledUrls shouldBe listOf("http://service-a/cb", "http://service-b/cb")
         }
     })

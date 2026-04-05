@@ -21,8 +21,8 @@ class NotifyCustomTest :
     FunSpec({
 
         test("custom notify handler can make multiple outgoing calls") {
+            // arrange
             val calledUrls = mutableListOf<String>()
-
             val mockEngine =
                 MockEngine { req ->
                     calledUrls += req.url.toString()
@@ -39,21 +39,27 @@ class NotifyCustomTest :
                     }
                 }
 
+            // act
             testApplication {
                 application { HotPotServer.configureApplication(this, scope) }
-                client
+                val response =
+                    client
                     .post("/paymob/complex-scenario") {
                         contentType(ContentType.Application.Json)
                         setBody("""{"event":"done"}""")
-                    }.status shouldBe HttpStatusCode.Accepted
+                    }
+
+                // assert
+                response.status shouldBe HttpStatusCode.Accepted
             }
 
+            // assert
             calledUrls shouldBe listOf("http://service-a/cb", "http://service-b/cb")
         }
 
         test("custom notify handler receives the request body") {
+            // arrange
             var receivedBody = ""
-
             val mockEngine =
                 MockEngine { req ->
                     receivedBody = req.body.toByteArray().decodeToString()
@@ -69,6 +75,7 @@ class NotifyCustomTest :
                     }
                 }
 
+            // act
             testApplication {
                 application { HotPotServer.configureApplication(this, scope) }
                 client.post("/p/forward") {
@@ -76,6 +83,7 @@ class NotifyCustomTest :
                 }
             }
 
+            // assert
             receivedBody shouldBe """{"custom":"payload"}"""
         }
     })

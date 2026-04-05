@@ -33,13 +33,20 @@ class QueryRouterTest :
             }
 
         test("GET /hotpot/requests returns empty list initially") {
+            // arrange
             testApplication {
                 appWithRoute()()
-                client.get("/hotpot/requests").bodyAsText() shouldBe "[]"
+
+                // act
+                val body = client.get("/hotpot/requests").bodyAsText()
+
+                // assert
+                body shouldBe "[]"
             }
         }
 
         test("GET /hotpot/requests returns saved request after POST") {
+            // arrange
             val storage = InMemoryStorage()
             testApplication {
                 appWithRoute(storage)()
@@ -47,57 +54,91 @@ class QueryRouterTest :
                     contentType(ContentType.Application.Json)
                     setBody("{}")
                 }
+
+                // act
                 val body = client.get("/hotpot/requests").bodyAsText()
+
+                // assert
                 body shouldContain "/p/event"
             }
         }
 
         test("GET /hotpot/requests?path= filters by path") {
+            // arrange
             val storage = InMemoryStorage()
             testApplication {
                 appWithRoute(storage)()
                 client.post("/p/event") { setBody("{}") }
+
+                // act
                 val matching = client.get("/hotpot/requests?path=/p/event").bodyAsText()
                 val nonMatching = client.get("/hotpot/requests?path=/other").bodyAsText()
+
+                // assert
                 matching shouldContain "/p/event"
                 nonMatching shouldBe "[]"
             }
         }
 
         test("GET /hotpot/requests/{id} returns specific request") {
+            // arrange
             val storage = InMemoryStorage()
             testApplication {
                 appWithRoute(storage)()
                 client.post("/p/event") { setBody("{}") }
                 val id = storage.findRequests().first().id
-                client.get("/hotpot/requests/$id").status shouldBe HttpStatusCode.OK
+
+                // act
+                val response = client.get("/hotpot/requests/$id")
+
+                // assert
+                response.status shouldBe HttpStatusCode.OK
             }
         }
 
         test("GET /hotpot/requests/{id} returns 404 for unknown id") {
+            // arrange
             testApplication {
                 appWithRoute()()
-                client.get("/hotpot/requests/no-such-id").status shouldBe HttpStatusCode.NotFound
+
+                // act
+                val response = client.get("/hotpot/requests/no-such-id")
+
+                // assert
+                response.status shouldBe HttpStatusCode.NotFound
             }
         }
 
         test("GET /hotpot/requests/{id}/response returns paired response") {
+            // arrange
             val storage = InMemoryStorage()
             testApplication {
                 appWithRoute(storage)()
                 client.post("/p/event") { setBody("{}") }
                 val id = storage.findRequests().first().id
-                client.get("/hotpot/requests/$id/response").status shouldBe HttpStatusCode.OK
+
+                // act
+                val response = client.get("/hotpot/requests/$id/response")
+
+                // assert
+                response.status shouldBe HttpStatusCode.OK
             }
         }
 
         test("DELETE /hotpot/requests clears all saved data") {
+            // arrange
             val storage = InMemoryStorage()
             testApplication {
                 appWithRoute(storage)()
                 client.post("/p/event") { setBody("{}") }
-                client.delete("/hotpot/requests").status shouldBe HttpStatusCode.NoContent
-                client.get("/hotpot/requests").bodyAsText() shouldBe "[]"
+
+                // act
+                val deleteResponse = client.delete("/hotpot/requests")
+                val body = client.get("/hotpot/requests").bodyAsText()
+
+                // assert
+                deleteResponse.status shouldBe HttpStatusCode.NoContent
+                body shouldBe "[]"
             }
         }
     })

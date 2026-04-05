@@ -39,51 +39,79 @@ class HMACSignatureValidationTest :
             }
 
         test("valid HMAC signature passes") {
+            // arrange
             val body = """{"event":"test"}"""
+
+            // act
             testApplication {
                 withSignatureRoute()
-                client
+                val response =
+                    client
                     .post("/test") {
                         setBody(body)
                         header("X-Hub-Signature-256", computeHmac(body.toByteArray()))
-                    }.status shouldBe HttpStatusCode.OK
+                    }
+
+                // assert
+                response.status shouldBe HttpStatusCode.OK
             }
         }
 
         test("tampered body is rejected") {
+            // arrange
             val body = """{"event":"test"}"""
+
+            // act
             testApplication {
                 withSignatureRoute()
-                client
+                val response =
+                    client
                     .post("/test") {
                         setBody("""{"event":"tampered"}""")
                         header("X-Hub-Signature-256", computeHmac(body.toByteArray()))
-                    }.status shouldBe HttpStatusCode.BadRequest
+                    }
+
+                // assert
+                response.status shouldBe HttpStatusCode.BadRequest
             }
         }
 
         test("wrong secret is rejected") {
+            // arrange
             val body = """{"event":"test"}"""
+
+            // act
             testApplication {
                 withSignatureRoute()
                 val mac = Mac.getInstance("HmacSHA256")
                 mac.init(SecretKeySpec("wrong-secret".toByteArray(), "HmacSHA256"))
                 val wrongSig = "sha256=" + mac.doFinal(body.toByteArray()).joinToString("") { "%02x".format(it) }
-                client
+                val response =
+                    client
                     .post("/test") {
                         setBody(body)
                         header("X-Hub-Signature-256", wrongSig)
-                    }.status shouldBe HttpStatusCode.BadRequest
+                    }
+
+                // assert
+                response.status shouldBe HttpStatusCode.BadRequest
             }
         }
 
         test("missing signature header is rejected") {
+            // arrange
             testApplication {
                 withSignatureRoute()
-                client
+
+                // act
+                val response =
+                    client
                     .post("/test") {
                         setBody("""{"event":"test"}""")
-                    }.status shouldBe HttpStatusCode.BadRequest
+                    }
+
+                // assert
+                response.status shouldBe HttpStatusCode.BadRequest
             }
         }
     })

@@ -40,14 +40,17 @@ class OpenApiDocsTest :
             }
 
         test("OpenAPI spec endpoint returns generated JSON") {
+            // arrange
             testApplication {
                 application { HotPotServer.configureApplication(this, appScope()) }
 
+                // act
                 val response = client.get("/hotpot/openapi.json")
+                val body = response.bodyAsText()
+
+                // assert
                 response.status shouldBe HttpStatusCode.OK
                 response.headers[HttpHeaders.ContentType] shouldContain ContentType.Application.Json.toString()
-
-                val body = response.bodyAsText()
                 body shouldContain "\"openapi\""
                 body shouldContain "\"/payments\""
                 body shouldContain "\"/hotpot/requests\""
@@ -55,24 +58,32 @@ class OpenApiDocsTest :
         }
 
         test("OpenAPI spec excludes docs routes and includes documented headers") {
-        testApplication {
-            application { HotPotServer.configureApplication(this, appScope()) }
+            // arrange
+            testApplication {
+                application { HotPotServer.configureApplication(this, appScope()) }
 
-            val body = client.get("/hotpot/openapi.json").bodyAsText()
-            body shouldContain "\"bearerAuth\""
-            body shouldContain "\"security\":[{\"bearerAuth\":[]}]"
-            body shouldContain "\"X-Hub-Signature-256\""
-            body shouldContain "\"/payments/callbacks\""
-            body shouldNotContain "\"/hotpot/openapi.json\""
+                // act
+                val body = client.get("/hotpot/openapi.json").bodyAsText()
+
+                // assert
+                body shouldContain "\"bearerAuth\""
+                body shouldContain "\"security\":[{\"bearerAuth\":[]}]"
+                body shouldContain "\"X-Hub-Signature-256\""
+                body shouldContain "\"/payments/callbacks\""
+                body shouldNotContain "\"/hotpot/openapi.json\""
                 body shouldNotContain "\"/hotpot/swagger\""
             }
         }
 
         test("Swagger UI endpoint is served") {
+            // arrange
             testApplication {
                 application { HotPotServer.configureApplication(this, appScope()) }
 
+                // act
                 val response = client.get("/hotpot/swagger")
+
+                // assert
                 response.status shouldBe HttpStatusCode.OK
                 response.bodyAsText() shouldContain "Swagger UI"
             }

@@ -29,12 +29,10 @@ class WebhookEndpointTest :
         fun startScope(
             storage: InMemoryStorage = InMemoryStorage(),
             block: StartScope.() -> Unit,
-        ): StartScope {
-            val service = NotificationService.create()
-            return StartScope(storage).apply(block)
-        }
+        ): StartScope = StartScope(storage).apply(block)
 
         test("POST to a registered route returns DSL-defined response") {
+            // arrange
             val scope =
                 startScope {
                     listen(path = "/paymob") {
@@ -43,17 +41,24 @@ class WebhookEndpointTest :
                         }
                     }
                 }
+
+            // act
             testApplication {
                 application { HotPotServer.configureApplication(this, scope) }
-                client
+                val response =
+                    client
                     .post("/paymob/callback") {
                         contentType(ContentType.Application.Json)
                         setBody("{}")
-                    }.status shouldBe HttpStatusCode.OK
+                    }
+
+                // assert
+                response.status shouldBe HttpStatusCode.OK
             }
         }
 
         test("request is saved to storage when saveRequestResponse = true") {
+            // arrange
             val storage = InMemoryStorage()
             val scope =
                 startScope(storage) {
@@ -61,6 +66,8 @@ class WebhookEndpointTest :
                         post(path = "/callback") { _ -> HotPotResponse.ok() }
                     }
                 }
+
+            // act
             testApplication {
                 application { HotPotServer.configureApplication(this, scope) }
                 client.post("/paymob/callback") {
@@ -68,11 +75,15 @@ class WebhookEndpointTest :
                     setBody("""{"hello":"world"}""")
                 }
             }
-            storage.findRequests() shouldBe listOf(storage.findRequests().first())
-            storage.findRequests().first().path shouldBe "/paymob/callback"
+
+            // assert
+            val savedRequests = storage.findRequests()
+            savedRequests shouldBe listOf(savedRequests.first())
+            savedRequests.first().path shouldBe "/paymob/callback"
         }
 
         test("request is NOT saved when saveRequestResponse = false") {
+            // arrange
             val storage = InMemoryStorage()
             val scope =
                 startScope(storage) {
@@ -80,14 +91,19 @@ class WebhookEndpointTest :
                         post(path = "/callback") { _ -> HotPotResponse.ok() }
                     }
                 }
+
+            // act
             testApplication {
                 application { HotPotServer.configureApplication(this, scope) }
                 client.post("/paymob/callback") { setBody("{}") }
             }
+
+            // assert
             storage.findRequests().size shouldBe 0
         }
 
         test("per-route saveRequestResponse overrides listen-level setting") {
+            // arrange
             val storage = InMemoryStorage()
             val scope =
                 startScope(storage) {
@@ -96,17 +112,22 @@ class WebhookEndpointTest :
                         post(path = "/skip-me") { _ -> HotPotResponse.ok() }
                     }
                 }
+
+            // act
             testApplication {
                 application { HotPotServer.configureApplication(this, scope) }
                 client.post("/p/save-me") { setBody("{}") }
                 client.post("/p/skip-me") { setBody("{}") }
             }
+
+            // assert
             val saved = storage.findRequests()
             saved.size shouldBe 1
             saved.first().path shouldBe "/p/save-me"
         }
 
         test("invalid auth token returns 401") {
+            // arrange
             val scope =
                 startScope {
                     listen(path = "/p") {
@@ -115,17 +136,24 @@ class WebhookEndpointTest :
                         }
                     }
                 }
+
+            // act
             testApplication {
                 application { HotPotServer.configureApplication(this, scope) }
-                client
+                val response =
+                    client
                     .post("/p/secure") {
                         header(HttpHeaders.Authorization, "Bearer wrong")
                         setBody("{}")
-                    }.status shouldBe HttpStatusCode.Unauthorized
+                    }
+
+                // assert
+                response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
 
         test("valid auth token returns handler response") {
+            // arrange
             val scope =
                 startScope {
                     listen(path = "/p") {
@@ -134,17 +162,24 @@ class WebhookEndpointTest :
                         }
                     }
                 }
+
+            // act
             testApplication {
                 application { HotPotServer.configureApplication(this, scope) }
-                client
+                val response =
+                    client
                     .post("/p/secure") {
                         header(HttpHeaders.Authorization, "Bearer secret")
                         setBody("{}")
-                    }.status shouldBe HttpStatusCode.OK
+                    }
+
+                // assert
+                response.status shouldBe HttpStatusCode.OK
             }
         }
 
         test("invalid HMAC signature returns 400") {
+            // arrange
             val scope =
                 startScope {
                     listen(path = "/p") {
@@ -153,17 +188,24 @@ class WebhookEndpointTest :
                         }
                     }
                 }
+
+            // act
             testApplication {
                 application { HotPotServer.configureApplication(this, scope) }
-                client
+                val response =
+                    client
                     .post("/p/signed") {
                         setBody("{}")
                         header("X-Hub-Signature-256", "sha256=invalidsig")
-                    }.status shouldBe HttpStatusCode.BadRequest
+                    }
+
+                // assert
+                response.status shouldBe HttpStatusCode.BadRequest
             }
         }
 
         test("valid HMAC signature passes through to handler") {
+            // arrange
             val secret = "my-secret"
             val body = """{"event":"test"}"""
             val mac = Mac.getInstance("HmacSHA256")
@@ -178,26 +220,38 @@ class WebhookEndpointTest :
                         }
                     }
                 }
+
+            // act
             testApplication {
                 application { HotPotServer.configureApplication(this, scope) }
-                client
+                val response =
+                    client
                     .post("/p/signed") {
                         setBody(body)
                         header("X-Hub-Signature-256", sig)
-                    }.status shouldBe HttpStatusCode.OK
+                    }
+
+                // assert
+                response.status shouldBe HttpStatusCode.OK
             }
         }
 
         test("GET route is registered and returns 200") {
+            // arrange
             val scope =
                 startScope {
                     listen(path = "/p") {
                         get(path = "/health")
                     }
                 }
+
+            // act
             testApplication {
                 application { HotPotServer.configureApplication(this, scope) }
-                client.get("/p/health").status shouldBe HttpStatusCode.OK
+                val response = client.get("/p/health")
+
+                // assert
+                response.status shouldBe HttpStatusCode.OK
             }
         }
     })

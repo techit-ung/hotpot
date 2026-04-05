@@ -23,9 +23,9 @@ class NotifyProxyTest :
     FunSpec({
 
         test("POST to notify proxy path forwards body to configured target") {
+            // arrange
             var capturedUrl = ""
             var capturedBody = ""
-
             val mockEngine =
                 MockEngine { req ->
                     capturedUrl = req.url.toString()
@@ -41,6 +41,7 @@ class NotifyProxyTest :
                     }
                 }
 
+            // act
             testApplication {
                 application { HotPotServer.configureApplication(this, scope) }
                 val response =
@@ -48,16 +49,19 @@ class NotifyProxyTest :
                         contentType(ContentType.Application.Json)
                         setBody("""{"event":"capture_succeeded"}""")
                     }
+
+                // assert
                 response.status shouldBe HttpStatusCode.Accepted
             }
 
+            // assert
             capturedUrl shouldBe "http://service/webhook"
             capturedBody shouldContain "capture_succeeded"
         }
 
         test("notify proxy forwards custom headers to target") {
+            // arrange
             var capturedHeader = ""
-
             val mockEngine =
                 MockEngine { req ->
                     capturedHeader = req.headers["X-Provider"] ?: ""
@@ -75,11 +79,13 @@ class NotifyProxyTest :
                     }
                 }
 
+            // act
             testApplication {
                 application { HotPotServer.configureApplication(this, scope) }
                 client.post("/paymob/trigger") { setBody("{}") }
             }
 
+            // assert
             capturedHeader shouldBe "paymob"
         }
     })
