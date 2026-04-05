@@ -55,14 +55,15 @@ class OpenApiDocsTest :
         }
 
         test("OpenAPI spec excludes docs routes and includes documented headers") {
-            testApplication {
-                application { HotPotServer.configureApplication(this, appScope()) }
+        testApplication {
+            application { HotPotServer.configureApplication(this, appScope()) }
 
-                val body = client.get("/hotpot/openapi.json").bodyAsText()
-                body shouldContain "\"Authorization\""
-                body shouldContain "\"X-Hub-Signature-256\""
-                body shouldContain "\"/payments/callbacks\""
-                body shouldNotContain "\"/hotpot/openapi.json\""
+            val body = client.get("/hotpot/openapi.json").bodyAsText()
+            body shouldContain "\"bearerAuth\""
+            body shouldContain "\"security\":[{\"bearerAuth\":[]}]"
+            body shouldContain "\"X-Hub-Signature-256\""
+            body shouldContain "\"/payments/callbacks\""
+            body shouldNotContain "\"/hotpot/openapi.json\""
                 body shouldNotContain "\"/hotpot/swagger\""
             }
         }

@@ -22,6 +22,7 @@ data class HMACSignatureValidation(
         return if (MessageDigest.isEqual(expected.toByteArray(), received.toByteArray())) {
             SignatureResult.Valid
         } else {
+            println("expected: $expected, received $received")
             SignatureResult.Invalid("HMAC signature mismatch")
         }
     }

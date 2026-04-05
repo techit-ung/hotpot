@@ -6,9 +6,11 @@ import com.coloncmd.hotpot.signature.HMACSignatureValidation
 import com.coloncmd.hotpot.signature.SignatureStrategy
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.openapi.HttpSecurityScheme
 import io.ktor.openapi.OpenApiDoc
 import io.ktor.openapi.OpenApiInfo
 import io.ktor.openapi.Operation
+import io.ktor.openapi.ReferenceOr
 import io.ktor.server.application.Application
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.response.respondText
@@ -23,6 +25,7 @@ import kotlin.reflect.typeOf
 
 internal object HotPotOpenApi {
     const val SPEC_PATH = "/hotpot/openapi.json"
+    private const val BEARER_AUTH_SCHEME = "bearerAuth"
 
     fun install(
         app: Application,
@@ -31,6 +34,17 @@ internal object HotPotOpenApi {
         val source =
             OpenApiDocSource.Routing(
                 contentType = ContentType.Application.Json,
+                securitySchemes = {
+                    mapOf(
+                        BEARER_AUTH_SCHEME to ReferenceOr.Value(
+                            HttpSecurityScheme(
+                                scheme = "bearer",
+                                bearerFormat = "JWT",
+                                description = "Bearer token used by TokenAuthentication.",
+                            ),
+                        ),
+                    )
+                },
                 routes = { documentedRoots.asSequence().flatMap { it.allDescendants() } },
             )
         app.routing {
@@ -85,12 +99,8 @@ internal object HotPotOpenApi {
 
     @OptIn(ExperimentalStdlibApi::class)
     fun Operation.Builder.describeTokenAuth() {
-        parameters {
-            header("Authorization") {
-                required = true
-                description = "Bearer token used by TokenAuthentication."
-                schema = buildSchema(typeOf<String>())
-            }
+        security {
+            requirement(BEARER_AUTH_SCHEME, emptyList())
         }
     }
 
