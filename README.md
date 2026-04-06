@@ -19,6 +19,13 @@ dependencies {
 }
 ```
 
+## Usage modes
+
+| Mode | When to use |
+|---|---|
+| **Kotlin library** | Embed in tests, full DSL control, custom auth/signature logic |
+| **Docker + YAML** | No-code mock server, integrate with any stack, CI environments |
+
 ## Use cases
 
 - **Automated tests** — spin up HotPot in-process, hit its endpoints, assert on captured payloads via the query API.
@@ -270,6 +277,72 @@ listen(path = "/events", saveRequestResponse = false) {
 ```
 
 The per-route value overrides the `listen`-level value.
+
+## Docker
+
+Run HotPot as a standalone mock server with no Kotlin code — just a YAML config file.
+
+```bash
+docker build -f standalone/Dockerfile -t hotpot .
+
+docker run -p 8080:8080 \
+  -v $(pwd)/hotpot.yaml:/app/hotpot.yaml \
+  -e API_TOKEN=secret \
+  -e WEBHOOK_SECRET=hmac-secret \
+  hotpot
+```
+
+Set `HOTPOT_CONFIG` to use a different config path (default: `/app/hotpot.yaml`).
+
+### Config file
+
+```yaml
+port: 8080
+
+groups:
+  - path: /payments
+    save: true               # record requests/responses (default: true)
+
+    routes:
+      - method: POST
+        path: ""
+
+        auth:
+          - type: token
+            token: "${API_TOKEN}"       # ${VAR} reads from environment
+
+        signature:
+          - type: hmac
+            secret: "${WEBHOOK_SECRET}"
+            headerName: "X-Hub-Signature-256"   # optional, shown is default
+            algorithm: "HmacSHA256"             # optional
+            prefix: "sha256="                   # optional
+
+        response:
+          status: 202
+          body: |
+            {
+              "id": "{{request.id}}",
+              "amount": "{{request.body.amount}}"
+            }
+
+    notify:
+      - path: ""
+        target: "http://audit-service/events"
+        headers:
+          X-Source: "hotpot"
+```
+
+**Template variables** available in `response.body`:
+
+| Variable | Value |
+|---|---|
+| `{{request.id}}` | UUID assigned to this request |
+| `{{request.path}}` | Request path |
+| `{{request.method}}` | HTTP method |
+| `{{request.body}}` | Raw request body |
+| `{{request.body.field}}` | JSON field from request body |
+| `{{request.headers.Name}}` | First value of a request header |
 
 ## Example
 

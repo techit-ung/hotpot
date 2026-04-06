@@ -7,6 +7,7 @@ kotlinx-serialization = "1.10.0"
 kotlinx-coroutines = "1.10.2"
 kotest = "5.9.1"
 logback = "1.5.18"
+kaml = "0.79.0"
 kover = "0.9.8"
 ktlint-gradle = "14.2.0"
 maven-publish = "0.36.0"
@@ -36,6 +37,8 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+
+kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }

@@ -10,7 +10,7 @@ class InMemoryStorage : Storage {
     private val responses = ConcurrentHashMap<String, WebhookResponse>()
 
     override suspend fun saveRequest(request: WebhookRequest): String {
-        val id = UUID.randomUUID().toString()
+        val id = request.id.ifEmpty { UUID.randomUUID().toString() }
         requests[id] = request.copy(id = id)
         return id
     }
