@@ -1,6 +1,6 @@
 # Releasing HotPot
 
-HotPot is released to Maven Central through a tag-driven GitHub Actions workflow.
+HotPot is released to Maven Central through a tag-driven GitHub Actions workflow. The same workflows also publish the standalone Docker image to Docker Hub as `techitung/hotpot`.
 
 ## Required GitHub Secrets
 
@@ -8,10 +8,12 @@ HotPot is released to Maven Central through a tag-driven GitHub Actions workflow
 - `MAVEN_CENTRAL_PASSWORD` - Sonatype Central Portal token password
 - `SIGNING_KEY`
 - `SIGNING_PASSWORD`
+- `DOCKERHUB_USERNAME`
+- `DOCKERHUB_TOKEN`
 
 ## Snapshot Releases
 
-HotPot can publish `-SNAPSHOT` builds to Maven Central from the `main` branch through [`snapshot.yml`](.github/workflows/snapshot.yml).
+HotPot can publish `-SNAPSHOT` builds to Maven Central from the `main` branch through [`snapshot.yml`](.github/workflows/snapshot.yml). The same workflow publishes Docker images to Docker Hub.
 
 Before using snapshot publishing, enable `SNAPSHOT` publishing for the `com.coloncmd` namespace in the Sonatype Central Portal.
 
@@ -26,7 +28,10 @@ Before using snapshot publishing, enable `SNAPSHOT` publishing for the `com.colo
 ./gradlew build publishToMavenCentral
 ```
 
-5. If `gradle.properties` is not a `-SNAPSHOT` version, the workflow exits without publishing.
+5. After the Maven snapshot is published, the workflow builds [`standalone/Dockerfile`](standalone/Dockerfile) and pushes:
+   - `techitung/hotpot:X.Y.Z-SNAPSHOT`
+   - `techitung/hotpot:snapshot`
+6. If `gradle.properties` is not a `-SNAPSHOT` version, the workflow exits without publishing.
 
 ## Release Steps
 
@@ -50,4 +55,7 @@ git push origin vX.Y.Z
 ./gradlew build publishAndReleaseToMavenCentral
 ```
 
-7. After the release is published, bump [`gradle.properties`](gradle.properties) to the next development version such as `X.Y.(Z+1)-SNAPSHOT`.
+7. After the Maven release is published, the workflow builds [`standalone/Dockerfile`](standalone/Dockerfile) and pushes:
+   - `techitung/hotpot:vX.Y.Z`
+   - `techitung/hotpot:latest`
+8. After the release is published, bump [`gradle.properties`](gradle.properties) to the next development version such as `X.Y.(Z+1)-SNAPSHOT`.

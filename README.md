@@ -282,6 +282,18 @@ The per-route value overrides the `listen`-level value.
 
 Run HotPot as a standalone mock server with no Kotlin code — just a YAML config file.
 
+Prebuilt images are published to Docker Hub as `techitung/hotpot`.
+
+```bash
+docker run -p 8080:8080 \
+  -v $(pwd)/hotpot.yaml:/app/hotpot.yaml \
+  -e API_TOKEN=secret \
+  -e WEBHOOK_SECRET=hmac-secret \
+  techitung/hotpot:latest
+```
+
+You can also build the image locally:
+
 ```bash
 docker build -f standalone/Dockerfile -t hotpot .
 
