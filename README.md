@@ -7,6 +7,18 @@ A codified mock backend and webhook sink for testing. Define HTTP endpoints in K
 
 HotPot also exposes a runtime-generated OpenAPI spec and Swagger UI for the routes it mounts.
 
+## Installation
+
+```kotlin
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("com.coloncmd:hotpot:0.1.0")
+}
+```
+
 ## Use cases
 
 - **Automated tests** — spin up HotPot in-process, hit its endpoints, assert on captured payloads via the query API.
@@ -274,6 +286,10 @@ See [`example/`](example/) for a standalone project that uses HotPot as a librar
 ```bash
 ./gradlew test
 ```
+
+## Releasing
+
+See [`RELEASING.md`](RELEASING.md) for the Maven Central release process.
 
 ## Tech stack
 

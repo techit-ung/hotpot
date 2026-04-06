@@ -13,7 +13,7 @@ application {
 }
 
 dependencies {
-    implementation("com.coloncmd.hotpot:hotpot")
+    implementation("com.coloncmd:hotpot")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("ch.qos.logback:logback-classic:1.5.18")
 }

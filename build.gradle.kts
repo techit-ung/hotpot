@@ -1,13 +1,20 @@
+import com.vanniktech.maven.publish.DeploymentValidation
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinJvm
+import com.vanniktech.maven.publish.SourcesJar
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kover)
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.maven.publish)
+    alias(libs.plugins.dokka)
     application
 }
 
-group = "com.coloncmd.hotpot"
-version = "0.1.0-SNAPSHOT"
+group = "com.coloncmd"
+description = "A Kotlin DSL for mock HTTP backends and webhook sinks in tests."
 
 application {
     mainClass.set("com.coloncmd.hotpot.HotPotKt")
@@ -57,6 +64,55 @@ kover {
         total {
             xml { onCheck = false }
             html { onCheck = false }
+        }
+    }
+}
+
+mavenPublishing {
+    coordinates(group.toString(), "hotpot", version.toString())
+
+    configure(
+        KotlinJvm(
+            javadocJar = JavadocJar.Dokka("dokkaGeneratePublicationHtml"),
+            sourcesJar = SourcesJar.Sources(),
+        ),
+    )
+
+    publishToMavenCentral(
+        automaticRelease = true,
+        validateDeployment = DeploymentValidation.PUBLISHED,
+    )
+
+    signAllPublications()
+
+    pom {
+        name.set("HotPot")
+        description.set(project.description)
+        url.set("https://github.com/techit-ung/hotpot")
+        inceptionYear.set("2026")
+
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://opensource.org/license/mit")
+            }
+        }
+
+        developers {
+            developer {
+                id.set("techit-ung")
+                name.set("techit-ung")
+                email.set("techit.ung@gmail.com")
+                organization.set("techit-ung")
+                organizationUrl.set("https://github.com/techit-ung")
+                url.set("https://github.com/techit-ung")
+            }
+        }
+
+        scm {
+            url.set("https://github.com/techit-ung/hotpot")
+            connection.set("scm:git:https://github.com/techit-ung/hotpot.git")
+            developerConnection.set("scm:git:git@github.com:techit-ung/hotpot.git")
         }
     }
 }

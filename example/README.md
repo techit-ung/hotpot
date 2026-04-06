@@ -29,6 +29,8 @@ cd example
 
 The server starts on `http://localhost:8080`.
 
+The example uses the local checkout through Gradle composite build substitution (`includeBuild("..")`), while keeping the published dependency coordinates as `com.coloncmd:hotpot`. To try a specific published release outside this repo, depend on `com.coloncmd:hotpot:<version>`.
+
 ## Testing with curl
 
 ### POST /payments
