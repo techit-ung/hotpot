@@ -8,7 +8,25 @@ HotPot is released to Maven Central through a tag-driven GitHub Actions workflow
 - `MAVEN_CENTRAL_PASSWORD` - Sonatype Central Portal token password
 - `SIGNING_KEY`
 - `SIGNING_PASSWORD`
-- `SIGNING_KEY_ID` (optional)
+
+## Snapshot Releases
+
+HotPot can publish `-SNAPSHOT` builds to Maven Central from the `main` branch through [`snapshot.yml`](.github/workflows/snapshot.yml).
+
+Before using snapshot publishing, enable `SNAPSHOT` publishing for the `com.coloncmd` namespace in the Sonatype Central Portal.
+
+### Snapshot Flow
+
+1. Set `version=X.Y.Z-SNAPSHOT` in [`gradle.properties`](gradle.properties).
+2. Push to `main`, or trigger the `Snapshot Release` workflow manually.
+3. GitHub Actions checks whether `gradle.properties` ends with `-SNAPSHOT`.
+4. If it does, the workflow runs:
+
+```bash
+./gradlew build publishToMavenCentral
+```
+
+5. If `gradle.properties` is not a `-SNAPSHOT` version, the workflow exits without publishing.
 
 ## Release Steps
 
