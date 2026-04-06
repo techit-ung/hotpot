@@ -39,6 +39,7 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.utils.io.toByteArray
 import kotlinx.serialization.json.Json
+import java.util.UUID
 import kotlin.time.Clock
 
 class HotPotServer(
@@ -98,7 +99,7 @@ class HotPotServer(
 
                 val request =
                     WebhookRequest(
-                        id = "",
+                        id = UUID.randomUUID().toString(),
                         path = call.request.path(),
                         method = call.request.httpMethod.value,
                         headers =

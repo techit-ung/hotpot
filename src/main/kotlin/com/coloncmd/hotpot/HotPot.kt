@@ -7,6 +7,12 @@ import com.coloncmd.hotpot.storage.InMemoryStorage
 import com.coloncmd.hotpot.storage.SqlStorage
 import com.coloncmd.hotpot.storage.Storage
 
+fun buildScope(
+    storage: Storage = SqlStorage.inMemory(),
+    notificationService: NotificationService = NotificationService.create(),
+    block: StartScope.() -> Unit,
+): StartScope = StartScope(storage, notificationService).apply(block)
+
 fun start(
     port: Int = 8080,
     storage: Storage = SqlStorage.inMemory(),

@@ -45,7 +45,7 @@ class SqlStorage(
 
     override suspend fun saveRequest(request: WebhookRequest): String =
         db {
-            val id = UUID.randomUUID().toString()
+            val id = request.id.ifEmpty { UUID.randomUUID().toString() }
             RequestsTable.insert {
                 it[RequestsTable.id] = id
                 it[RequestsTable.path] = request.path
